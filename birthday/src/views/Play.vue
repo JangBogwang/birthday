@@ -21,18 +21,19 @@ const isWaving = ref(false);
 const isDancing = ref(false);
 
 // 한 글자씩 출력하는 함수
-const typeText = (text: string, index = 0) => {
+const typeText = (text: string) => { // 🔵 index 제거
   displayedText.value = "";
   
   const typeNextChar = (i = 0) => {
     if (i < text.length) {
       displayedText.value += text[i];
-      setTimeout(() => typeNextChar(i + 1), 50); // 50ms 간격으로 출력
+      setTimeout(() => typeNextChar(i + 1), 50);
     }
   };
-  
+
   typeNextChar();
 };
+
 
 // 버튼 액션 함수들
 const handleGreeting = () => {
