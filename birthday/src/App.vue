@@ -4,7 +4,7 @@
 <template>
   <div class="container">
     <div class="content">
-      <p>이곳이 가운데 영역입니다.</p>
+      <router-view />
     </div>
   </div>
 </template>
@@ -33,6 +33,7 @@
   align-items: center;
   text-align: center;
   padding: 20px;
+  overflow: hidden;
 }
 
 /* 데스크탑 환경에서 효과 */
