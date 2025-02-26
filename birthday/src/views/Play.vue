@@ -6,14 +6,38 @@ const fullText = "안녕하세요! 저는 여러분의 가이드입니다.";
 const displayedText = ref("");
 const currentMessage = ref(fullText);
 
-// 버튼 액션 메시지
+// 버튼 액션 메시지 - 각 액션별로 여러 메시지 배열로 변경
 const messages = {
-  greeting: "안녕하세요! 반갑습니다.",
-  info: "저는 여러분을 도와드릴 가이드입니다.",
-  help: "무엇을 도와드릴까요?",
-  joke: "웃긴 농담을 해볼까요? 코딩하다 버그를 만나면 디버그, 디버그가 안되면 디버깅~",
-  dance: "신나게 춤을 춥니다! 🕺💃",
-  bye: "안녕히 가세요! 다음에 또 만나요."
+  greeting: [
+    "안녕하세요! 반갑습니다.",
+    "만나서 정말 반가워요!",
+    "오늘 하루도 멋진 하루 되세요!"
+  ],
+  eat: [
+    "맛있다! 냠냠~",
+    "오늘 점심은 뭐 드셨나요?",
+    "밥 먹고 힘내요!"
+  ],
+  help: [
+    "무엇을 도와드릴까요?",
+    "힘내세요! 당신은 할 수 있어요!",
+    "오늘 하루도 수고 많으셨어요."
+  ],
+  joke: [
+    "웃긴 농담을 해볼까요? 코딩하다 버그를 만나면 디버그, 디버그가 안되면 디버깅~",
+    "생일 축하합니다! 오늘은 특별한 날이에요! 🎂",
+    "행복한 생일 되세요! 케이크 드셨나요? 🍰"
+  ],
+  dance: [
+    "신나게 춤을 춥니다! 🕺💃",
+    "우와~ 댄스 파티 타임!",
+    "같이 춤을 춰요! 신나게~"
+  ],
+  surprise: [
+    "깜짝 선물이 있어요! 🎁",
+    "비밀인데... 사실 깜짝 파티를 준비했어요!",
+    "서프라이즈! 짜잔~! ✨"
+  ]
 };
 
 // 캐릭터 상태
@@ -21,7 +45,7 @@ const isWaving = ref(false);
 const isDancing = ref(false);
 
 // 한 글자씩 출력하는 함수
-const typeText = (text: string) => { // 🔵 index 제거
+const typeText = (text: string) => {
   displayedText.value = "";
   
   const typeNextChar = (i = 0) => {
@@ -34,43 +58,48 @@ const typeText = (text: string) => { // 🔵 index 제거
   typeNextChar();
 };
 
+// 랜덤 메시지 선택 함수
+const getRandomMessage = (messageArray: string[]) => {
+  const randomIndex = Math.floor(Math.random() * messageArray.length);
+  return messageArray[randomIndex];
+};
 
 // 버튼 액션 함수들
 const handleGreeting = () => {
   isWaving.value = true;
-  currentMessage.value = messages.greeting;
+  currentMessage.value = getRandomMessage(messages.greeting);
   typeText(currentMessage.value);
   setTimeout(() => {
     isWaving.value = false;
   }, 2000);
 };
 
-const handleInfo = () => {
-  currentMessage.value = messages.info;
+const handleEat = () => {
+  currentMessage.value = getRandomMessage(messages.eat);
   typeText(currentMessage.value);
 };
 
 const handleHelp = () => {
-  currentMessage.value = messages.help;
+  currentMessage.value = getRandomMessage(messages.help);
   typeText(currentMessage.value);
 };
 
 const handleJoke = () => {
-  currentMessage.value = messages.joke;
+  currentMessage.value = getRandomMessage(messages.joke);
   typeText(currentMessage.value);
 };
 
 const handleDance = () => {
   isDancing.value = true;
-  currentMessage.value = messages.dance;
+  currentMessage.value = getRandomMessage(messages.dance);
   typeText(currentMessage.value);
   setTimeout(() => {
     isDancing.value = false;
   }, 3000);
 };
 
-const handleBye = () => {
-  currentMessage.value = messages.bye;
+const handleSurprise = () => {
+  currentMessage.value = getRandomMessage(messages.surprise);
   typeText(currentMessage.value);
 };
 
@@ -83,35 +112,41 @@ onMounted(() => {
 <template>
   <div class="container">
     <div class="character-wrapper">
+      <div class="speech-bubble">
+        <p>{{ displayedText }}</p>
+      </div>
       <img 
         src="/character.png" 
         alt="Character" 
         class="character"
         :class="{ 'wave-animation': isWaving, 'dance-animation': isDancing }"
       />
-      <div class="speech-bubble">
-        <p>{{ displayedText }}</p>
-      </div>
     </div>
     
     <div class="buttons-container">
       <button @click="handleGreeting" class="action-button greeting-btn">
-        인사하기
+        <span class="button-icon">👋</span>
+        <span class="button-text">인사하기</span>
       </button>
-      <button @click="handleInfo" class="action-button info-btn">
-        정보보기
+      <button @click="handleEat" class="action-button eat-btn">
+        <span class="button-icon">🍔</span>
+        <span class="button-text">밥 먹기</span>
       </button>
       <button @click="handleHelp" class="action-button help-btn">
-        도움요청
+        <span class="button-icon">💕</span>
+        <span class="button-text">따뜻한 한 마디</span>
       </button>
       <button @click="handleJoke" class="action-button joke-btn">
-        농담하기
+        <span class="button-icon">🎂</span>
+        <span class="button-text">생일 축하</span>
       </button>
       <button @click="handleDance" class="action-button dance-btn">
-        춤추기
+        <span class="button-icon">💃</span>
+        <span class="button-text">춤추기</span>
       </button>
-      <button @click="handleBye" class="action-button bye-btn">
-        작별인사
+      <button @click="handleSurprise" class="action-button surprise-btn">
+        <span class="button-icon">🎁</span>
+        <span class="button-text">서프라이즈</span>
       </button>
     </div>
   </div>
@@ -121,24 +156,76 @@ onMounted(() => {
 .container {
   display: flex;
   flex-direction: column;
-  justify-content: center;
   align-items: center;
-  height: 100vh;
-  background-color: #dad4c4;
+  min-height: 100vh;
+  background-color: #dad4c4; /* 더 밝고 따뜻한 배경색 */
+  padding: 20px;
+  font-family: 'Arial Rounded MT Bold', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 .character-wrapper {
-  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
   margin-bottom: 40px;
+  position: relative;
 }
 
+/* 말풍선 스타일 (데스크탑) */
+.speech-bubble {
+  position: absolute;
+  top: -160px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: white;
+  padding: 20px 30px;
+  border-radius: 20px;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.15);
+  max-width: 80vw;
+  text-align: center;
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
+  white-space: normal;
+  word-wrap: break-word;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 80px;
+  min-width: 200px;
+  z-index: 1;
+  border: 3px solid #ffcae5; /* 귀여운 테두리 추가 */
+}
+
+/* 말풍선 꼬리 추가 */
+.speech-bubble:after {
+  content: '';
+  position: absolute;
+  bottom: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 10px solid transparent;
+  border-top-color: white;
+  z-index: 1;
+}
+
+.speech-bubble:before {
+  content: '';
+  position: absolute;
+  bottom: -24px;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 12px solid transparent;
+  border-top-color: #ffcae5;
+  z-index: 0;
+}
+
+/* 캐릭터 이미지 */
 .character {
   width: 150px;
   height: auto;
   transition: transform 0.3s ease;
+  margin-top: 30px;
 }
 
 /* 애니메이션 */
@@ -165,50 +252,6 @@ onMounted(() => {
   100% { transform: translateY(0); }
 }
 
-/* 말풍선 스타일 */
-.speech-bubble {
-  position: absolute;
-  top: -160px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: white;
-  padding: 20px 30px;
-  border-radius: 20px;
-  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.25);
-  max-width: 80vw;
-  text-align: center;
-  font-size: 18px;
-  font-weight: bold;
-  color: #333;
-  white-space: normal;
-  word-wrap: break-word;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 80px;
-  min-width: 200px;
-}
-
-/* 텍스트가 한 줄로 길어지지 않도록 조정 */
-.speech-bubble p {
-  display: inline-block;
-  text-align: center;
-  line-height: 1.5;
-  max-width: 100%;
-}
-
-/* 말풍선 꼬리 */
-.speech-bubble::after {
-  content: "";
-  position: absolute;
-  bottom: -15px;
-  left: 50%;
-  transform: translateX(-50%);
-  border-width: 15px;
-  border-style: solid;
-  border-color: white transparent transparent transparent;
-}
-
 /* 버튼 컨테이너 */
 .buttons-container {
   display: flex;
@@ -218,7 +261,7 @@ onMounted(() => {
   max-width: 600px;
 }
 
-/* 버튼 스타일 */
+/* 버튼 스타일 - 더 귀여운 디자인 */
 .action-button {
   padding: 12px 20px;
   border: none;
@@ -229,10 +272,32 @@ onMounted(() => {
   cursor: pointer;
   transition: all 0.3s ease;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  overflow: hidden;
+  position: relative;
+}
+
+.action-button:before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-100%);
+  transition: transform 0.3s;
+}
+
+.action-button:hover:before {
+  transform: translateY(0);
 }
 
 .action-button:hover {
-  transform: translateY(-3px);
+  transform: translateY(-3px) scale(1.03);
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
 }
 
@@ -240,40 +305,64 @@ onMounted(() => {
   transform: translateY(1px);
 }
 
-/* 각 버튼별 색상 */
-.greeting-btn {
-  background-color: #4CAF50;
+/* 버튼 아이콘 */
+.button-icon {
+  font-size: 24px;
+  margin-bottom: 2px;
 }
 
-.info-btn {
-  background-color: #2196F3;
+/* 버튼 텍스트 */
+.button-text {
+  font-size: 14px;
+  font-weight: bold;
 }
 
-.help-btn {
-  background-color: #9C27B0;
-}
+/* 각 버튼별 색상 - 더 밝고 귀여운 색으로 변경 */
+.greeting-btn { background-color: #4cd964; /* 밝은 녹색 */ }
+.eat-btn      { background-color: #5ac8fa; /* 밝은 파란색 */ }
+.help-btn     { background-color: #c969ff; /* 밝은 보라색 */ }
+.joke-btn     { background-color: #ffcc00; /* 밝은 노란색 */ }
+.dance-btn    { background-color: #ff6b9a; /* 밝은 분홍색 */ }
+.surprise-btn { background-color: #87a1ff; /* 밝은 청록색 */ }
 
-.joke-btn {
-  background-color: #FF9800;
-}
-
-.dance-btn {
-  background-color: #E91E63;
-}
-
-.bye-btn {
-  background-color: #607D8B;
-}
-
-/* 반응형 디자인 */
+/* 반응형 디자인 (모바일) */
 @media (max-width: 768px) {
+  .character-wrapper {
+    position: static; /* 더 이상 relative로 위치 조정하지 않음 */
+    display: block;
+    text-align: center;
+  }
+  
+  .speech-bubble {
+    position: static; /* 절대 위치 해제 */
+    transform: none;
+    max-width: 90%;
+    margin: 0 auto 10px; /* 중앙 정렬 및 아래 여백 추가 */
+    z-index: 2; /* 필요시 추가 */
+  }
+  
+  .character {
+    margin-top: 0; /* 상단 여백 제거 */
+  }
+  
   .buttons-container {
-    flex-direction: column;
-    width: 80%;
+    display: flex;
+    flex-direction: row; /* 가로 배치 */
+    flex-wrap: wrap; /* 줄 바꿈 허용 */
+    justify-content: center; /* 중앙 정렬 */
+    width: 90%; /* 너비 조정 */
+    margin: 20px auto 0; /* 중앙 정렬 및 상단 여백 */
+    gap: 10px; /* 버튼 간격 */
   }
   
   .action-button {
-    width: 100%;
+    width: calc(50% - 10px); /* 한 줄에 2개씩 (간격 고려) */
+    padding: 10px 0; /* 상하 패딩 */
+    font-size: 14px;
+  }
+  
+  .button-icon {
+    font-size: 20px;
   }
 }
 </style>
