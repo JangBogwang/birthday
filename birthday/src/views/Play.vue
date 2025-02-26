@@ -106,11 +106,6 @@ const handleDance = () => {
   }, 3000);
 };
 
-const handleSurprise = () => {
-  currentMessage.value = getRandomMessage(messages.surprise);
-  typeText(currentMessage.value);
-};
-
 // 페이지 로드 시 텍스트 출력 시작
 onMounted(() => {
   typeText(fullText);

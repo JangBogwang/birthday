@@ -39,11 +39,9 @@ const isJumping = ref(false);
 const isSpinning = ref(false);
 const showButton = ref(true);
 const clickCount = ref(0);
-const buttonText = ref("캐릭터와 대화하기");
 
 // 사용자 입력 관리용
 const userInput = ref("");       // 사용자가 입력한 텍스트
-const isWaitingUserInput = ref(false); // 캐릭터가 현재 입력을 대기 중인지 여부
 
 // 말풍선 표시 타이밍 컨트롤
 onMounted(() => {
@@ -173,7 +171,6 @@ const handleUserSubmit = () => {
   isTyping.value = true;
 
   // 1) 입력 창 비우기
-  const userText = userInput.value; 
   userInput.value = "";
   
   // 2) "위로 멘트" 중 랜덤 골라서 타이핑
