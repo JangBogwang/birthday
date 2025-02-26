@@ -4,8 +4,10 @@ import { useRouter } from "vue-router"; // 🚀 Vue Router 사용
 
 const router = useRouter(); // 라우터 인스턴스 가져오기
 
-// 대사 설정
-const initialText = "안녕하세요! 저는 여러분의 가이드입니다.";
+// --------------------
+// 1. 대사 관련 변수 및 초기화
+// --------------------
+const initialText = "어떤 말이든 들어줄게";
 const clickResponses = [
   "와! 간지럽네요!",
   "히히, 또 클릭하시겠어요?",
@@ -17,6 +19,18 @@ const clickResponses = [
   "오! 클릭해주셨네요!"
 ];
 
+// 사용자가 하소연을 하면 캐릭터가 해줄 위로 멘트들 (원하는 만큼 추가/수정 가능)
+const comfortingMessages = [
+  "마음이 많이 힘드셨군요. 그래도 괜찮아요, 전 항상 여기 있어요!",
+  "뭐든 잘 풀릴 거예요. 너무 걱정하지 마세요!",
+  "조금 쉬어가도 괜찮아요. 힘든 걸 참고 견디는 것도 대단한 거랍니다.",
+  "그래도 언젠가 좋은 날이 찾아올 거예요. 함께 힘내봐요!",
+  "하루하루 버텨내느라 고생이 많아요. 조금만 더 힘내봐요!"
+];
+
+// --------------------
+// 2. 화면 표시/상태 관리용 ref
+// --------------------
 const displayedText = ref("");
 const isTyping = ref(true);
 const showBubble = ref(false);
@@ -26,6 +40,10 @@ const isSpinning = ref(false);
 const showButton = ref(true);
 const clickCount = ref(0);
 const buttonText = ref("캐릭터와 대화하기");
+
+// 사용자 입력 관리용
+const userInput = ref("");       // 사용자가 입력한 텍스트
+const isWaitingUserInput = ref(false); // 캐릭터가 현재 입력을 대기 중인지 여부
 
 // 말풍선 표시 타이밍 컨트롤
 onMounted(() => {
@@ -39,16 +57,15 @@ onMounted(() => {
   }, 500);
 });
 
-// 캐릭터 클릭 이벤트 핸들러
+// --------------------
+// 3. 캐릭터 애니메이션 & 클릭 이벤트
+// --------------------
 const handleCharacterClick = () => {
   // 이미 애니메이션 중이면 무시
   if (isJumping.value || isSpinning.value) return;
   
   // 애니메이션 상태 활성화
   clickCount.value++;
-  
-  // 버튼 텍스트 업데이트
-  updateButtonText();
   
   // 랜덤 효과 선택 (3가지 중 랜덤)
   const randomEffect = Math.floor(Math.random() * 3);
@@ -70,7 +87,7 @@ const handleCharacterClick = () => {
       isSpinning.value = false;
     }, 1000);
   } else {
-    // 효과 3: 점프 + 밥
+    // 효과 3: 점프 + 밥(살짝 위아래 흔들)
     isJumping.value = true;
     isBobbing.value = true;
     setTimeout(() => {
@@ -94,28 +111,16 @@ const handleCharacterClick = () => {
   }
 };
 
-// 버튼 텍스트 업데이트 함수
-const updateButtonText = () => {
-  const buttonTexts = [
-    "캐릭터와 대화하기",
-    "또 말 걸어보기",
-    "한 번 더 대화하기",
-    "계속 대화하기",
-    "캐릭터 반응 보기"
-  ];
-  
-  // 클릭 횟수에 따라 다른 텍스트 표시
-  const index = clickCount.value % buttonTexts.length;
-  buttonText.value = buttonTexts[index];
-};
 
-// 마침표, 쉼표 등에서 살짝 멈추는 타이핑 효과
+// --------------------
+// 4. 타이핑 효과 함수
+// --------------------
 const typeText = (text: string, index = 0) => {
   if (index < text.length) {
     displayedText.value += text[index];
     
-    // 현재 캐릭터가 마침표나 쉼표 또는 느낌표면 잠시 더 오래 멈춤
-    const delay = text[index].match(/[.,!?]/) ? 400 : 
+    // 현재 글자가 마침표/쉼표/느낌표 등이라면 조금 더 지연
+    const delay = text[index].match(/[.,!?]/) ? 400 :
                  text[index].match(/[\s]/) ? 80 : 100;
     
     // 타이핑 중 캐릭터 움직임 효과 적용
@@ -136,17 +141,18 @@ const typeText = (text: string, index = 0) => {
   }
 };
 
-// 말하는 중에 따옴표와 점 깜빡임 효과
+// --------------------
+// 5. 타이핑 시 커서 깜빡임
+// --------------------
 const cursorVisible = ref(true);
 setInterval(() => {
   if (isTyping.value) {
     cursorVisible.value = !cursorVisible.value;
   } else {
-    cursorVisible.value = true; // 타이핑 끝나면 커서 고정
+    cursorVisible.value = true; // 타이핑이 끝나면 커서 고정
   }
 }, 500);
 
-// 타이핑 중 마지막에 커서 표시
 const textWithCursor = computed(() => {
   if (isTyping.value && cursorVisible.value) {
     return displayedText.value + "|";
@@ -154,11 +160,36 @@ const textWithCursor = computed(() => {
   return displayedText.value;
 });
 
-// 🚀 "다음으로" 버튼 클릭 시 이동
+// --------------------
+// 6. 사용자 입력 처리
+// --------------------
+const handleUserSubmit = () => {
+  if (!userInput.value.trim()) {
+    return; // 빈 입력이면 무시
+  }
+  
+  // 캐릭터가 새롭게 말풍선을 채울 수 있도록 초기화
+  displayedText.value = "";
+  isTyping.value = true;
+
+  // 1) 입력 창 비우기
+  const userText = userInput.value; 
+  userInput.value = "";
+  
+  // 2) "위로 멘트" 중 랜덤 골라서 타이핑
+  const randomIndex = Math.floor(Math.random() * comfortingMessages.length);
+  const response = comfortingMessages[randomIndex];
+  
+  // 실제 타이핑 시작
+  typeText(response);
+};
+
+// --------------------
+// 7. 페이지 이동 (다음으로 버튼)
+// --------------------
 const goToNext = () => {
   router.push("/play");
 };
-
 </script>
 
 <template>
@@ -186,23 +217,26 @@ const goToNext = () => {
         }"
         @click="handleCharacterClick"
       />
-      
-      <!-- 항상 표시되는 대화 버튼 -->
-      <button 
-        class="chat-button" 
-        @click="handleCharacterClick"
-        :class="{ 'pulse': clickCount === 0 }"
-      >
-        {{ buttonText }}
-      </button>
+
+      <!-- 사용자 텍스트 입력창 + 전송 버튼 -->
+      <div class="input-area">
+        <input
+          type="text"
+          v-model="userInput"
+          placeholder="아무 말이나 하소연해보세요..."
+          @keyup.enter="handleUserSubmit"
+        />
+        <button @click="handleUserSubmit">전송</button>
+      </div>
 
       <!-- 🚀 다음으로 버튼 -->
-      <button v-if="showButton" class="next-button" @click="goToNext">다음으로 →</button>
+      <button v-if="showButton" class="next-button" @click="goToNext">돌아가기</button>
     </div>
   </div>
 </template>
 
 <style scoped>
+/* 전체 컨테이너 */
 .container {
   display: flex;
   justify-content: center;
@@ -218,6 +252,7 @@ const goToNext = () => {
   align-items: center;
 }
 
+/* 캐릭터 이미지 */
 .character {
   width: 150px;
   height: auto;
@@ -231,22 +266,22 @@ const goToNext = () => {
   transform: scale(1.05);
 }
 
-/* 말하는 동안 캐릭터 미세 움직임 효과 */
+/* 캐릭터가 말하는 동안 미세 움직임 */
 .bobbing {
   animation: bobbing 0.5s infinite alternate ease-in-out;
 }
 
-/* 클릭 시 점프 효과 */
+/* 캐릭터 점프 */
 .jumping {
   animation: jump 1s ease-in-out;
 }
 
-/* 클릭 시 회전 효과 */
+/* 캐릭터 스핀 */
 .spinning {
   animation: spin 1s ease-in-out;
 }
 
-/* 말풍선 스타일 */
+/* 말풍선 */
 .speech-bubble {
   position: relative;
   background: white;
@@ -268,7 +303,7 @@ const goToNext = () => {
   margin-bottom: 20px;
 }
 
-/* 말풍선 점프 효과 */
+/* 말풍선 올라오는 애니메이션 */
 .bubble-bounce {
   animation: bubbleBounce 1s ease-in-out;
 }
@@ -278,7 +313,7 @@ const goToNext = () => {
   animation: fadeIn 0.6s forwards ease-out;
 }
 
-/* 텍스트가 한 줄로 길어지지 않도록 조정 */
+/* 말풍선 텍스트 */
 .speech-bubble p {
   display: inline-block;
   text-align: center;
@@ -287,7 +322,6 @@ const goToNext = () => {
 }
 
 /* 말풍선 꼬리 */
-/* 말풍선 꼬리 추가 */
 .speech-bubble:after {
   content: '';
   position: absolute;
@@ -298,7 +332,6 @@ const goToNext = () => {
   border-top-color: white;
   z-index: 1;
 }
-
 .speech-bubble:before {
   content: '';
   position: absolute;
@@ -324,13 +357,11 @@ const goToNext = () => {
   transition: all 0.3s ease;
   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
 }
-
 .chat-button:hover {
   background-color: #333;
   transform: scale(1.05);
   box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.3);
 }
-
 .chat-button:active {
   transform: scale(0.95);
 }
@@ -340,7 +371,55 @@ const goToNext = () => {
   animation: buttonPulse 2s infinite;
 }
 
-/* 텍스트 애니메이션 */
+/* 입력창+전송 버튼 컨테이너 */
+.input-area {
+  margin-top: 20px;
+  display: flex;
+  gap: 10px;
+}
+
+/* 사용자 입력창 */
+.input-area input {
+  padding: 10px;
+  width: 200px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  outline: none;
+}
+
+/* 전송 버튼 */
+.input-area button {
+  padding: 10px 20px;
+  background-color: #ff8e8e;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+.input-area button:hover {
+  background-color: #ff6f6f;
+}
+
+/* 다음으로 버튼 */
+.next-button {
+  margin-top: 20px;
+  padding: 10px 20px;
+  font-size: 16px;
+  font-weight: bold;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+.next-button:hover {
+  background-color: #45a049;
+}
+
+/* 애니메이션 정의 */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -352,7 +431,6 @@ const goToNext = () => {
   }
 }
 
-/* 캐릭터 말하는 애니메이션 */
 @keyframes bobbing {
   0% {
     transform: translateY(0);
@@ -362,7 +440,6 @@ const goToNext = () => {
   }
 }
 
-/* 점프 애니메이션 */
 @keyframes jump {
   0% {
     transform: translateY(0) scale(1);
@@ -375,7 +452,6 @@ const goToNext = () => {
   }
 }
 
-/* 스핀 애니메이션 */
 @keyframes spin {
   0% {
     transform: rotate(0deg);
@@ -385,7 +461,6 @@ const goToNext = () => {
   }
 }
 
-/* 말풍선 점프 애니메이션 */
 @keyframes bubbleBounce {
   0% {
     transform: translateY(0);
@@ -404,7 +479,6 @@ const goToNext = () => {
   }
 }
 
-/* 버튼 펄스 애니메이션 */
 @keyframes buttonPulse {
   0% {
     box-shadow: 0 0 0 0 rgba(74, 74, 74, 0.7);
@@ -415,23 +489,5 @@ const goToNext = () => {
   100% {
     box-shadow: 0 0 0 0 rgba(74, 74, 74, 0);
   }
-}
-
-/* 🚀 다음으로 버튼 스타일 */
-.next-button {
-  margin-top: 20px;
-  padding: 10px 20px;
-  font-size: 16px;
-  font-weight: bold;
-  background-color: #4CAF50;
-  color: white;
-  border: none;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: background 0.3s ease;
-}
-
-.next-button:hover {
-  background-color: #45a049;
 }
 </style>

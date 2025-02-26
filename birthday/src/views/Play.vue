@@ -1,5 +1,8 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
+import { useRouter } from "vue-router"; // 🚀 Vue Router 사용
+
+const router = useRouter(); // 라우터 인스턴스 가져오기
 
 // 대사 설정
 const fullText = "안녕하세요! 저는 여러분의 가이드입니다.";
@@ -24,9 +27,9 @@ const messages = {
     "오늘 하루도 수고 많으셨어요."
   ],
   joke: [
-    "웃긴 농담을 해볼까요? 코딩하다 버그를 만나면 디버그, 디버그가 안되면 디버깅~",
-    "생일 축하합니다! 오늘은 특별한 날이에요! 🎂",
-    "행복한 생일 되세요! 케이크 드셨나요? 🍰"
+    "생일 축하해! 오늘은 특별한 날이에야! 🎂",
+    "오늘",
+    "행복한 생일 되세요! 케이크는 먹었어? 🍰"
   ],
   dance: [
     "신나게 춤을 춥니다! 🕺💃",
@@ -52,7 +55,7 @@ const typeText = (text: string) => {
   const typeNextChar = (i = 0) => {
     if (i < text.length) {
       displayedText.value += text[i];
-      setTimeout(() => typeNextChar(i + 1), 50);
+      setTimeout(() => typeNextChar(i + 1), 60);
     }
   };
 
@@ -112,6 +115,11 @@ const handleSurprise = () => {
 onMounted(() => {
   typeText(fullText);
 });
+
+// 🚀 "다음으로" 버튼 클릭 시 이동
+const goToNext = () => {
+  router.push("/talk"); // "/talk" 페이지로 이동
+};
 </script>
 
 <template>
@@ -136,10 +144,10 @@ onMounted(() => {
     <div class="buttons-container">
       <button @click="handleGreeting" class="action-button greeting-btn">👋 인사하기</button>
       <button @click="handleEat" class="action-button eat-btn">🍔 밥 먹기</button>
-      <button @click="handleHelp" class="action-button help-btn">💕 따뜻한 한 마디</button>
+      <button @click="handleHelp" class="action-button help-btn">💕 좋은 말</button>
       <button @click="handleJoke" class="action-button joke-btn">🎂 생일 축하</button>
       <button @click="handleDance" class="action-button dance-btn">💃 춤추기</button>
-      <button @click="handleSurprise" class="action-button surprise-btn">🎁 서프라이즈</button>
+      <button class="action-button surprise-btn" @click="goToNext">💬하소연 하기</button>
     </div>
   </div>
 </template>
