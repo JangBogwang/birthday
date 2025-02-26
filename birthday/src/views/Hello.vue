@@ -109,30 +109,34 @@ const updateButtonText = () => {
   buttonText.value = buttonTexts[index];
 };
 
+let typingTimeout: number | null = null; // 기존 타이핑 추적 변수
+
 // 마침표, 쉼표 등에서 살짝 멈추는 타이핑 효과
 const typeText = (text: string, index = 0) => {
+  if (index === 0) {
+    // 기존 타이핑 중단
+    if (typingTimeout) {
+      clearTimeout(typingTimeout);
+    }
+    displayedText.value = ""; // 기존 텍스트 초기화
+    isTyping.value = true; // 타이핑 시작 표시
+  }
+
   if (index < text.length) {
     displayedText.value += text[index];
-    
-    // 현재 캐릭터가 마침표나 쉼표 또는 느낌표면 잠시 더 오래 멈춤
+
+    // 문장 부호에 따른 지연
     const delay = text[index].match(/[.,!?]/) ? 400 : 
-                 text[index].match(/[\s]/) ? 80 : 100;
-    
-    // 타이핑 중 캐릭터 움직임 효과 적용
-    if (!isJumping.value && !isSpinning.value) {
-      isBobbing.value = true;
-    }
-    
-    setTimeout(() => {
-      // 다음 글자로 이동
+                  text[index].match(/[\s]/) ? 80 : 100;
+
+    // 현재 실행 중인 타이핑 추적
+    typingTimeout = setTimeout(() => {
       typeText(text, index + 1);
     }, delay);
   } else {
-    // 타이핑 완료
+    // 타이핑 완료 처리
     isTyping.value = false;
-    if (!isJumping.value && !isSpinning.value) {
-      isBobbing.value = false;
-    }
+    typingTimeout = null;
   }
 };
 
