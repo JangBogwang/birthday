@@ -9,13 +9,13 @@ const currentMessage = ref(fullText);
 // 버튼 액션 메시지 - 각 액션별로 여러 메시지 배열로 변경
 const messages = {
   greeting: [
-    "안녕하세요! 반갑습니다.",
-    "만나서 정말 반가워요!",
-    "오늘 하루도 멋진 하루 되세요!"
+    "안녕!",
+    "만나서 정말 반가워!",
+    "오늘 하루도 멋진 하루!",
+    "행복한 하루 보내!"
   ],
   eat: [
     "맛있다! 냠냠~",
-    "오늘 점심은 뭐 드셨나요?",
     "밥 먹고 힘내요!"
   ],
   help: [
@@ -43,6 +43,7 @@ const messages = {
 // 캐릭터 상태
 const isWaving = ref(false);
 const isDancing = ref(false);
+const isEating = ref(false);
 
 // 한 글자씩 출력하는 함수
 const typeText = (text: string) => {
@@ -75,8 +76,12 @@ const handleGreeting = () => {
 };
 
 const handleEat = () => {
+  isEating.value = true;
   currentMessage.value = getRandomMessage(messages.eat);
   typeText(currentMessage.value);
+  setTimeout(() => {
+    isEating.value = false;
+  }, 3000);
 };
 
 const handleHelp = () => {
@@ -115,39 +120,26 @@ onMounted(() => {
       <div class="speech-bubble">
         <p>{{ displayedText }}</p>
       </div>
-      <img 
-        src="/character.png" 
-        alt="Character" 
-        class="character"
-        :class="{ 'wave-animation': isWaving, 'dance-animation': isDancing }"
-      />
+      <template v-if="isEating">
+        <video src="/eating.mp4" autoplay muted class="character"></video>
+      </template>
+      <template v-else>
+        <img 
+          src="/character.png" 
+          alt="Character" 
+          class="character"
+          :class="{ 'wave-animation': isWaving, 'dance-animation': isDancing }"
+        />
+      </template>
     </div>
     
     <div class="buttons-container">
-      <button @click="handleGreeting" class="action-button greeting-btn">
-        <span class="button-icon">👋</span>
-        <span class="button-text">인사하기</span>
-      </button>
-      <button @click="handleEat" class="action-button eat-btn">
-        <span class="button-icon">🍔</span>
-        <span class="button-text">밥 먹기</span>
-      </button>
-      <button @click="handleHelp" class="action-button help-btn">
-        <span class="button-icon">💕</span>
-        <span class="button-text">따뜻한 한 마디</span>
-      </button>
-      <button @click="handleJoke" class="action-button joke-btn">
-        <span class="button-icon">🎂</span>
-        <span class="button-text">생일 축하</span>
-      </button>
-      <button @click="handleDance" class="action-button dance-btn">
-        <span class="button-icon">💃</span>
-        <span class="button-text">춤추기</span>
-      </button>
-      <button @click="handleSurprise" class="action-button surprise-btn">
-        <span class="button-icon">🎁</span>
-        <span class="button-text">서프라이즈</span>
-      </button>
+      <button @click="handleGreeting" class="action-button greeting-btn">👋 인사하기</button>
+      <button @click="handleEat" class="action-button eat-btn">🍔 밥 먹기</button>
+      <button @click="handleHelp" class="action-button help-btn">💕 따뜻한 한 마디</button>
+      <button @click="handleJoke" class="action-button joke-btn">🎂 생일 축하</button>
+      <button @click="handleDance" class="action-button dance-btn">💃 춤추기</button>
+      <button @click="handleSurprise" class="action-button surprise-btn">🎁 서프라이즈</button>
     </div>
   </div>
 </template>
