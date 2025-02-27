@@ -188,7 +188,7 @@ const goToNext = () => {
       <template v-if="isEating">
         <video src="/eating.mp4" autoplay muted class="character"></video>
       </template>
-      <template v-if="isDancing">
+      <template v-else-if="isDancing">
         <video src="/dancing.mp4" autoplay muted class="character"></video>
       </template>
       <template v-else>
