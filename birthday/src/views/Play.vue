@@ -183,7 +183,6 @@ const goToNext = () => {
   <div class="container">
     <div class="character-wrapper">
       <div class="speech-bubble">
-        <p>{{ displayedText }}</p>
         <p>{{ textWithCursor }}</p>
       </div>
       <template v-if="isEating">

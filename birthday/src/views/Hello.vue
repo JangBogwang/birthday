@@ -428,7 +428,7 @@ const goToNext = () => {
   padding: 10px 20px;
   font-size: 16px;
   font-weight: bold;
-  background-color: #4CAF50;
+  background-color: #fbe229;
   color: white;
   border: none;
   border-radius: 10px;
