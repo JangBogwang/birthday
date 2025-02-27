@@ -188,12 +188,15 @@ const goToNext = () => {
       <template v-if="isEating">
         <video src="/eating.mp4" autoplay muted class="character"></video>
       </template>
+      <template v-if="isDancing">
+        <video src="/dancing.mp4" autoplay muted class="character"></video>
+      </template>
       <template v-else>
         <img 
           src="/character.png" 
           alt="Character" 
           class="character"
-          :class="{ 'wave-animation': isWaving, 'dance-animation': isDancing }"
+          :class="{ 'wave-animation': isWaving }"
         />
       </template>
     </div>
