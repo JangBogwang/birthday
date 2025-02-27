@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import { useRouter } from "vue-router"; // 🚀 Vue Router 사용
 
 const router = useRouter(); // 라우터 인스턴스 가져오기
@@ -75,6 +75,7 @@ const isDancing = ref(false);
 const isEating = ref(false);
 
 let typingTimeout: number | null = null; // 기존 타이핑 추적 변수
+const isTyping = ref(true);
 
 // 마침표, 쉼표 등에서 살짝 멈추는 타이핑 효과
 const typeText = (text: string, index = 0) => {
@@ -104,6 +105,24 @@ const typeText = (text: string, index = 0) => {
     typingTimeout = null;
   }
 };
+
+// 말하는 중에 따옴표와 점 깜빡임 효과
+const cursorVisible = ref(true);
+setInterval(() => {
+  if (isTyping.value) {
+    cursorVisible.value = !cursorVisible.value;
+  } else {
+    cursorVisible.value = true; // 타이핑 끝나면 커서 고정
+  }
+}, 500);
+
+// 타이핑 중 마지막에 커서 표시
+const textWithCursor = computed(() => {
+  if (isTyping.value && cursorVisible.value) {
+    return displayedText.value + "|";
+  }
+  return displayedText.value;
+});
 
 // 랜덤 메시지 선택 함수
 const getRandomMessage = (messageArray: string[]) => {
@@ -165,6 +184,7 @@ const goToNext = () => {
     <div class="character-wrapper">
       <div class="speech-bubble">
         <p>{{ displayedText }}</p>
+        <p>{{ textWithCursor }}</p>
       </div>
       <template v-if="isEating">
         <video src="/eating.mp4" autoplay muted class="character"></video>
