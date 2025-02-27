@@ -74,18 +74,35 @@ const isWaving = ref(false);
 const isDancing = ref(false);
 const isEating = ref(false);
 
-// 한 글자씩 출력하는 함수
-const typeText = (text: string) => {
-  displayedText.value = "";
-  
-  const typeNextChar = (i = 0) => {
-    if (i < text.length) {
-      displayedText.value += text[i];
-      setTimeout(() => typeNextChar(i + 1), 60);
-    }
-  };
+let typingTimeout: number | null = null; // 기존 타이핑 추적 변수
 
-  typeNextChar();
+// 마침표, 쉼표 등에서 살짝 멈추는 타이핑 효과
+const typeText = (text: string, index = 0) => {
+  if (index === 0) {
+    // 기존 타이핑 중단
+    if (typingTimeout) {
+      clearTimeout(typingTimeout);
+    }
+    displayedText.value = ""; // 기존 텍스트 초기화
+    isTyping.value = true; // 타이핑 시작 표시
+  }
+
+  if (index < text.length) {
+    displayedText.value += text[index];
+
+    // 문장 부호에 따른 지연
+    const delay = text[index].match(/[.,!?]/) ? 400 : 
+                  text[index].match(/[\s]/) ? 80 : 100;
+
+    // 현재 실행 중인 타이핑 추적
+    typingTimeout = setTimeout(() => {
+      typeText(text, index + 1);
+    }, delay);
+  } else {
+    // 타이핑 완료 처리
+    isTyping.value = false;
+    typingTimeout = null;
+  }
 };
 
 // 랜덤 메시지 선택 함수
@@ -163,7 +180,7 @@ const goToNext = () => {
     </div>
     
     <div class="buttons-container">
-      <button @click="handleGreeting" class="action-button greeting-btn">👋 인사하기</button>
+      <button @click="handleGreeting" class="action-button greeting-btn">👋 노래하기</button>
       <button @click="handleEat" class="action-button eat-btn">🍔 밥 먹기</button>
       <button @click="handleHelp" class="action-button help-btn">💕 좋은 말</button>
       <button @click="handlebirthday" class="action-button birthday-btn">🎂 생일 축하</button>

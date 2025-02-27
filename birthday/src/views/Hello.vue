@@ -5,7 +5,7 @@ import { useRouter } from "vue-router"; // 🚀 Vue Router 사용
 const router = useRouter(); // 라우터 인스턴스 가져오기
 
 // 대사 설정
-const initialText = "안녕하세요! 저는 귀여운 오리 동글이에요. 클릭해보세요!";
+const initialText = "안녕하세요! 저는 귀여운 오리 뽀덕이에요. 클릭해보세요!";
 const clickResponses = [
   "와! 간지럽네요!",
   "히히, 또 클릭하시겠어요?",
@@ -101,7 +101,8 @@ const updateButtonText = () => {
     "또 말 걸어보기",
     "한 번 더 대화하기",
     "계속 대화하기",
-    "캐릭터 반응 보기"
+    "캐릭터 반응 보기",
+    "나랑 놀아줘"
   ];
   
   // 클릭 횟수에 따라 다른 텍스트 표시
@@ -201,7 +202,7 @@ const goToNext = () => {
       </button>
 
       <!-- 🚀 다음으로 버튼 -->
-      <button v-if="showButton" class="next-button" @click="goToNext">다음으로 →</button>
+      <button v-if="showButton" class="next-button" @click="goToNext">뽀덕이랑 놀기</button>
     </div>
   </div>
 </template>
